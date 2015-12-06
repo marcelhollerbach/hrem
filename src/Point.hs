@@ -1,4 +1,4 @@
-module Point(Point, pointDistance, pointCreate) where
+module Point where
 
 --
 data Point = Point {x, y :: Integer} deriving (Show)
