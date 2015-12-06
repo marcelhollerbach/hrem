@@ -19,11 +19,12 @@ simpleTransform :: Point -> Point
 simpleTransform (Point x y) = pointCreate (x * 2) y
 
 -- debugging list with a bunch of primitives
-debuglist :: [Primitiv]
-debuglist = (map noTransformShape [R.Rect (rectCreate2  0  0 200 200 (withOpacity black 100)),
-                                   R.Rect (rectCreate2 200 200 200 200 (opaque red)),
-                                   R.Rect (rectCreate2 400 400 200 200 (opaque yellow))]) ++
-            [Primitiv simpleTransform (R.Circle (circleCreate2 400 400 200 (withOpacity blue 50)))]
+debugrectlist :: [Primitiv Rectangle]
+debugrectlist = (map noTransformShape [rectCreate2  0  0 200 200 (withOpacity black 100),
+                                   rectCreate2 200 200 200 200 (opaque red),
+                                   rectCreate2 400 400 200 200 (opaque yellow)])
+debugcirclelist :: [Primitiv Circle]
+debugcirclelist = [Primitiv simpleTransform $ circleCreate2 400 400 200 (withOpacity blue 50)]
 
 -- converts a Double to a pixel8 vaue
 convert :: Double -> Pixel8
@@ -35,7 +36,7 @@ pixelConvert (RGB r g b)= PixelRGB8 (convert (r* 255))
                                     (convert (g* 255))
                                     (convert (b* 255))
 
-outputMatrix = S.swBufferMatrix $ renderFramePrimitives frame debuglist
+outputMatrix = S.swBufferMatrix $renderFramePrimitives (renderFramePrimitives frame debugrectlist) debugcirclelist
 
 main = writePng "/tmp/lucker.png" $ generateImage converter 1000 1000 where
    converter x y = pixelConvert $ toSRGB $ getElem (x+1) (y+1) outputMatrix

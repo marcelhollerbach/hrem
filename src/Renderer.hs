@@ -1,19 +1,20 @@
+{-# LANGUAGE MultiParamTypeClasses #-}
 module Renderer where
-import Rectangle
-import Circle
+import Shape
 import Point
 
 noTransform :: Point -> Point
 noTransform p = p
 
-noTransformShape :: Shape -> Primitiv
+noTransformShape :: Shape a => a -> Primitiv a
 noTransformShape s = Primitiv noTransform s
 
--- a graphical primitiv
-data Shape = Rect Rectangle | Circle Circle
-
 -- graphical primitiv
-data Primitiv = Primitiv {coordTransform :: Point -> Point, shape :: Shape}
+data Shape a => Primitiv a = Primitiv {coordTransform :: Point -> Point, shape :: a}
+
+-- set of objects which are making a object renderable
+class (Renderer frame, Shape shape) => RenderObject frame shape where
+    render :: Shape shape => frame -> (Point -> Point) -> shape -> frame
 
 -- Set of function which needs to be set by a renderer
 class Renderer f where
@@ -21,8 +22,9 @@ class Renderer f where
     emptyFrame :: Integer -> Integer -> f
 
     -- renders a single primitiv onto the given frame, returning the new
-    renderFramePrimitiv :: f -> Primitiv -> f
+    renderFramePrimitiv :: RenderObject f a => f -> Primitiv a -> f
+    renderFramePrimitiv frame (Primitiv trans shape) = render frame trans shape
 
     --renders a list of primitives onto a the given frame
-    renderFramePrimitives :: f -> [Primitiv] -> f
+    renderFramePrimitives :: RenderObject f a => f -> [Primitiv a] -> f
     renderFramePrimitives frame p = foldl renderFramePrimitiv frame p
